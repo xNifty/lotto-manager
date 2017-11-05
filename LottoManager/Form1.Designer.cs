@@ -156,7 +156,7 @@
             this.guildApiLabel.BackColor = System.Drawing.Color.Transparent;
             this.guildApiLabel.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guildApiLabel.ForeColor = System.Drawing.Color.White;
-            this.guildApiLabel.Location = new System.Drawing.Point(64, 289);
+            this.guildApiLabel.Location = new System.Drawing.Point(71, 289);
             this.guildApiLabel.Name = "guildApiLabel";
             this.guildApiLabel.Size = new System.Drawing.Size(76, 21);
             this.guildApiLabel.TabIndex = 24;
