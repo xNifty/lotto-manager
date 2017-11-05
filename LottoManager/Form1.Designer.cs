@@ -26,6 +26,11 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.aboutTab = new System.Windows.Forms.TabControl();
             this.addMember = new System.Windows.Forms.TabPage();
+            this.leaderapikey = new System.Windows.Forms.TextBox();
+            this.leaderapi = new System.Windows.Forms.Label();
+            this.guildapikey = new System.Windows.Forms.TextBox();
+            this.guildApiLabel = new System.Windows.Forms.Label();
+            this.apistatus = new System.Windows.Forms.Label();
             this.addUserButton = new System.Windows.Forms.Button();
             this.userEntryText = new System.Windows.Forms.TextBox();
             this.rollsDropdown = new System.Windows.Forms.ComboBox();
@@ -90,6 +95,11 @@
             // addMember
             // 
             this.addMember.BackColor = System.Drawing.Color.Goldenrod;
+            this.addMember.Controls.Add(this.leaderapikey);
+            this.addMember.Controls.Add(this.leaderapi);
+            this.addMember.Controls.Add(this.guildapikey);
+            this.addMember.Controls.Add(this.guildApiLabel);
+            this.addMember.Controls.Add(this.apistatus);
             this.addMember.Controls.Add(this.addUserButton);
             this.addMember.Controls.Add(this.userEntryText);
             this.addMember.Controls.Add(this.rollsDropdown);
@@ -111,6 +121,57 @@
             this.addMember.Size = new System.Drawing.Size(699, 491);
             this.addMember.TabIndex = 0;
             this.addMember.Text = "Add Member";
+            // 
+            // leaderapikey
+            // 
+            this.leaderapikey.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.leaderapikey.Location = new System.Drawing.Point(164, 328);
+            this.leaderapikey.Name = "leaderapikey";
+            this.leaderapikey.Size = new System.Drawing.Size(475, 22);
+            this.leaderapikey.TabIndex = 27;
+            // 
+            // leaderapi
+            // 
+            this.leaderapi.AutoSize = true;
+            this.leaderapi.BackColor = System.Drawing.Color.Transparent;
+            this.leaderapi.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.leaderapi.ForeColor = System.Drawing.Color.White;
+            this.leaderapi.Location = new System.Drawing.Point(75, 329);
+            this.leaderapi.Name = "leaderapi";
+            this.leaderapi.Size = new System.Drawing.Size(72, 21);
+            this.leaderapi.TabIndex = 26;
+            this.leaderapi.Text = "API Key:";
+            // 
+            // guildapikey
+            // 
+            this.guildapikey.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guildapikey.Location = new System.Drawing.Point(164, 292);
+            this.guildapikey.Name = "guildapikey";
+            this.guildapikey.Size = new System.Drawing.Size(475, 22);
+            this.guildapikey.TabIndex = 25;
+            // 
+            // guildApiLabel
+            // 
+            this.guildApiLabel.AutoSize = true;
+            this.guildApiLabel.BackColor = System.Drawing.Color.Transparent;
+            this.guildApiLabel.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guildApiLabel.ForeColor = System.Drawing.Color.White;
+            this.guildApiLabel.Location = new System.Drawing.Point(64, 289);
+            this.guildApiLabel.Name = "guildApiLabel";
+            this.guildApiLabel.Size = new System.Drawing.Size(76, 21);
+            this.guildApiLabel.TabIndex = 24;
+            this.guildApiLabel.Text = "Guild ID:";
+            // 
+            // apistatus
+            // 
+            this.apistatus.AutoSize = true;
+            this.apistatus.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.apistatus.ForeColor = System.Drawing.Color.Red;
+            this.apistatus.Location = new System.Drawing.Point(9, 456);
+            this.apistatus.Name = "apistatus";
+            this.apistatus.Size = new System.Drawing.Size(222, 21);
+            this.apistatus.TabIndex = 23;
+            this.apistatus.Text = "GW2 Api Status: Not Pinged";
             // 
             // addUserButton
             // 
@@ -249,15 +310,15 @@
             this.connectionLabel.BackColor = System.Drawing.Color.Transparent;
             this.connectionLabel.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.connectionLabel.ForeColor = System.Drawing.Color.Red;
-            this.connectionLabel.Location = new System.Drawing.Point(535, 456);
+            this.connectionLabel.Location = new System.Drawing.Point(483, 456);
             this.connectionLabel.Name = "connectionLabel";
-            this.connectionLabel.Size = new System.Drawing.Size(130, 21);
+            this.connectionLabel.Size = new System.Drawing.Size(209, 21);
             this.connectionLabel.TabIndex = 6;
-            this.connectionLabel.Text = "Not Connected!";
+            this.connectionLabel.Text = "Database: Not Connected!";
             // 
             // connectionButton
             // 
-            this.connectionButton.Location = new System.Drawing.Point(564, 280);
+            this.connectionButton.Location = new System.Drawing.Point(564, 365);
             this.connectionButton.Name = "connectionButton";
             this.connectionButton.Size = new System.Drawing.Size(75, 23);
             this.connectionButton.TabIndex = 15;
@@ -269,7 +330,7 @@
             // 
             this.saveSettingsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.saveSettingsButton.ForeColor = System.Drawing.Color.Black;
-            this.saveSettingsButton.Location = new System.Drawing.Point(164, 280);
+            this.saveSettingsButton.Location = new System.Drawing.Point(164, 365);
             this.saveSettingsButton.Name = "saveSettingsButton";
             this.saveSettingsButton.Size = new System.Drawing.Size(111, 23);
             this.saveSettingsButton.TabIndex = 22;
@@ -515,10 +576,9 @@
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(397, 65);
+            this.textBox2.Size = new System.Drawing.Size(397, 146);
             this.textBox2.TabIndex = 2;
-            this.textBox2.Text = "New in this Version:\r\n- Minor exception catches (untested)\r\n- Multiple TODOs adde" +
-    "d internally that aren\'t ready";
+            this.textBox2.Text = resources.GetString("textBox2.Text");
             // 
             // label9
             // 
@@ -552,7 +612,7 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -656,6 +716,11 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.Button clearDatabase;
+        private System.Windows.Forms.Label apistatus;
+        private System.Windows.Forms.TextBox leaderapikey;
+        private System.Windows.Forms.Label leaderapi;
+        private System.Windows.Forms.TextBox guildapikey;
+        private System.Windows.Forms.Label guildApiLabel;
     }
 }
 

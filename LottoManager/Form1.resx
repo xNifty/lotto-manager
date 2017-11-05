@@ -127,6 +127,13 @@ The program will work for any purpose, in theory, assuming the database
 is setup the same. At this time, the database creation scripts are not
 released (because I really haven't felt like quickly getting them).</value>
   </data>
+  <data name="textBox2.Text" xml:space="preserve">
+    <value>New in this Version:
+- No more hardcoded strings - usable by multiple guilds now
+- Save guild ID and the leaders API key to connect to API
+- Output the API status when we attempt to connect to it
+- Fix error where program was unusable when API is down</value>
+  </data>
   <metadata name="backgroundWorker2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
@@ -134,7 +141,7 @@ released (because I really haven't felt like quickly getting them).</value>
     <value>181, 17</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>25</value>
+    <value>40</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

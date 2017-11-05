@@ -17,6 +17,8 @@ using LottoManager.Properties;
 using System.Reflection;
 using Newtonsoft.Json;
 
+// @TODO : rewrite all of this stuff
+
 namespace LottoManager {
 
     public partial class Form1 : Form {
@@ -25,6 +27,7 @@ namespace LottoManager {
 
         private MySqlConnection connection;
         private bool isConnected = false;
+        private bool generatedList = false;
         private Dictionary<string, string> dict = new Dictionary<string, string>();
         private List<string> randomList = new List<string>();
         private List<string> winnerList = new List<string>();
@@ -36,21 +39,10 @@ namespace LottoManager {
             MaximizeBox = false;
             this.DoubleBuffered = true;
 
-            using (var webClient = new System.Net.WebClient()) {
-                var json = webClient.DownloadString("https://api.guildwars2.com/v2/guild/CABF5A3C-E308-E511-8D0D-AC162DAE8ACD/members?access_token=76B3C9E7-1810-6E4A-8A57-D38A02AA369B65FAB442-DDC2-4581-A59C-86EA767ACDBE");
-                dynamic jsonObj = JsonConvert.DeserializeObject(json);
-
-                foreach (var obj in jsonObj) {
-                    //Console.WriteLine(obj.name);
-                    guildRoster.Add((string)obj.name);
-                }
-            }
-
             //guildRoster.ForEach(Console.WriteLine);
 
             userEntryText.AutoCompleteMode = AutoCompleteMode.Suggest;
             userEntryText.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            userEntryText.AutoCompleteCustomSource = guildRoster.ToAutoCompleteStringCollection();
 
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed) {
                 System.Deployment.Application.ApplicationDeployment cd = System.Deployment.Application.ApplicationDeployment.CurrentDeployment;
@@ -76,6 +68,8 @@ namespace LottoManager {
             usernameBox.Text = Properties.Settings.Default.usernameBox;
             hostnameBox.Text = Properties.Settings.Default.hostBox;
             databaseBox.Text = Properties.Settings.Default.databaseBox;
+            guildapikey.Text = Properties.Settings.Default.guildapikey;
+            leaderapikey.Text = Properties.Settings.Default.leaderapikey;
         }
 
         private void rollBox_TextChanged(object sender, EventArgs e) {
@@ -210,7 +204,7 @@ namespace LottoManager {
 
             if (OpenConnection(connection)) {
                 connectionLabel.ForeColor = Color.Green;
-                connectionLabel.Text = "Connected!";
+                connectionLabel.Text = "Database: Connected!";
                 connectionButton.Enabled = false;
                 usernameBox.Enabled = false;
                 passwordBox.Enabled = false;
@@ -223,7 +217,7 @@ namespace LottoManager {
                 //MessageBox.Show("Connected!");
             } else {
                 connectionLabel.ForeColor = Color.Red;
-                connectionLabel.Text = "Not Connected!";
+                connectionLabel.Text = "Database: Not Connected!";
                 connectionButton.Enabled = true;
                 usernameBox.Enabled = true;
                 passwordBox.Enabled = true;
@@ -231,6 +225,44 @@ namespace LottoManager {
                 databaseBox.Enabled = true;
                 isConnected = false;
                 //MessageBox.Show("Connection failed...");
+            }
+
+            try
+            {
+                using (var webClient = new System.Net.WebClient())
+                {
+                    string guildID = guildapikey.Text;
+                    string guildLeaderAPI = leaderapikey.Text;
+                    string baseURL = "https://api.guildwars2.com/v2/guild/";
+                    string accessURL = baseURL + guildID + "/" + "members?access_token=" + guildLeaderAPI;
+                    Console.WriteLine(accessURL);
+                    var json = webClient.DownloadString(accessURL);
+                    dynamic jsonObj = JsonConvert.DeserializeObject(json);
+
+                    foreach (var obj in jsonObj)
+                    {
+                        //Console.WriteLine(obj.name);
+                        guildRoster.Add((string)obj.name);
+                    }
+
+                    generatedList = true;
+                }
+            }
+            catch
+            {
+                generatedList = false;
+            }
+
+            if (generatedList)
+            {
+                userEntryText.AutoCompleteCustomSource = guildRoster.ToAutoCompleteStringCollection();
+                apistatus.ForeColor = Color.Green;
+                apistatus.Text = "GW2 API Status: Connected";
+            }
+            else
+            {
+                apistatus.ForeColor = Color.Red;
+                apistatus.Text = "GW2 API Status: Not Connected";
             }
         }
 
@@ -379,6 +411,8 @@ namespace LottoManager {
             Properties.Settings.Default.usernameBox = usernameBox.Text;
             Properties.Settings.Default.hostBox = hostnameBox.Text;
             Properties.Settings.Default.databaseBox = databaseBox.Text;
+            Properties.Settings.Default.guildapikey = guildapikey.Text;
+            Properties.Settings.Default.leaderapikey = leaderapikey.Text;
             Properties.Settings.Default.Save();
         }
 

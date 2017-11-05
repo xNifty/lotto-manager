@@ -58,5 +58,29 @@ namespace LottoManager.Properties {
                 this["databaseBox"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string leaderapikey {
+            get {
+                return ((string)(this["leaderapikey"]));
+            }
+            set {
+                this["leaderapikey"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string guildapikey {
+            get {
+                return ((string)(this["guildapikey"]));
+            }
+            set {
+                this["guildapikey"] = value;
+            }
+        }
     }
 }
