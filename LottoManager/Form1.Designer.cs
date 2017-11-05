@@ -223,7 +223,7 @@
             // 
             this.databaseBox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::LottoManager.Properties.Settings.Default, "databaseBox", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.databaseBox.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.databaseBox.Location = new System.Drawing.Point(466, 252);
+            this.databaseBox.Location = new System.Drawing.Point(466, 248);
             this.databaseBox.Name = "databaseBox";
             this.databaseBox.Size = new System.Drawing.Size(173, 22);
             this.databaseBox.TabIndex = 14;
@@ -245,7 +245,7 @@
             this.label7.BackColor = System.Drawing.Color.Transparent;
             this.label7.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.ForeColor = System.Drawing.Color.White;
-            this.label7.Location = new System.Drawing.Point(375, 253);
+            this.label7.Location = new System.Drawing.Point(374, 250);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(85, 21);
             this.label7.TabIndex = 12;
