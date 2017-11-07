@@ -121,18 +121,12 @@
     <value>Nifty Lotto Manager, by Snoring Ninja
 https://snoring.ninja
 
-This program was designed for the Guild Wars 2 guild, End Game [Crew]
+This program was designed for use with hosting lotteries for guilds in
+Guild Wars 2; no database scripts are available at this time.
 
 The program will work for any purpose, in theory, assuming the database
 is setup the same. At this time, the database creation scripts are not
 released (because I really haven't felt like quickly getting them).</value>
-  </data>
-  <data name="textBox2.Text" xml:space="preserve">
-    <value>New in this Version:
-- No more hardcoded strings - usable by multiple guilds now
-- Save guild ID and the leaders API key to connect to API
-- Output the API status when we attempt to connect to it
-- Fix error where program was unusable when API is down</value>
   </data>
   <metadata name="backgroundWorker2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>

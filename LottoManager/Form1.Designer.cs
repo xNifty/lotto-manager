@@ -26,6 +26,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.aboutTab = new System.Windows.Forms.TabControl();
             this.addMember = new System.Windows.Forms.TabPage();
+            this.ticketsCount = new System.Windows.Forms.TextBox();
             this.leaderapikey = new System.Windows.Forms.TextBox();
             this.leaderapi = new System.Windows.Forms.Label();
             this.guildapikey = new System.Windows.Forms.TextBox();
@@ -33,7 +34,6 @@
             this.apistatus = new System.Windows.Forms.Label();
             this.addUserButton = new System.Windows.Forms.Button();
             this.userEntryText = new System.Windows.Forms.TextBox();
-            this.rollsDropdown = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.databaseBox = new System.Windows.Forms.TextBox();
             this.hostnameBox = new System.Windows.Forms.TextBox();
@@ -95,6 +95,7 @@
             // addMember
             // 
             this.addMember.BackColor = System.Drawing.Color.Goldenrod;
+            this.addMember.Controls.Add(this.ticketsCount);
             this.addMember.Controls.Add(this.leaderapikey);
             this.addMember.Controls.Add(this.leaderapi);
             this.addMember.Controls.Add(this.guildapikey);
@@ -102,7 +103,6 @@
             this.addMember.Controls.Add(this.apistatus);
             this.addMember.Controls.Add(this.addUserButton);
             this.addMember.Controls.Add(this.userEntryText);
-            this.addMember.Controls.Add(this.rollsDropdown);
             this.addMember.Controls.Add(this.label3);
             this.addMember.Controls.Add(this.databaseBox);
             this.addMember.Controls.Add(this.hostnameBox);
@@ -122,12 +122,22 @@
             this.addMember.TabIndex = 0;
             this.addMember.Text = "Add Member";
             // 
+            // ticketsCount
+            // 
+            this.ticketsCount.Font = new System.Drawing.Font("Impact", 12F);
+            this.ticketsCount.Location = new System.Drawing.Point(497, 82);
+            this.ticketsCount.MaxLength = 2;
+            this.ticketsCount.Name = "ticketsCount";
+            this.ticketsCount.Size = new System.Drawing.Size(100, 27);
+            this.ticketsCount.TabIndex = 28;
+            this.ticketsCount.TextChanged += new System.EventHandler(this.ticketsCount_TextChanged);
+            // 
             // leaderapikey
             // 
             this.leaderapikey.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.leaderapikey.Location = new System.Drawing.Point(164, 328);
+            this.leaderapikey.Location = new System.Drawing.Point(164, 318);
             this.leaderapikey.Name = "leaderapikey";
-            this.leaderapikey.Size = new System.Drawing.Size(475, 22);
+            this.leaderapikey.Size = new System.Drawing.Size(466, 22);
             this.leaderapikey.TabIndex = 27;
             // 
             // leaderapi
@@ -136,7 +146,7 @@
             this.leaderapi.BackColor = System.Drawing.Color.Transparent;
             this.leaderapi.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.leaderapi.ForeColor = System.Drawing.Color.White;
-            this.leaderapi.Location = new System.Drawing.Point(75, 329);
+            this.leaderapi.Location = new System.Drawing.Point(75, 318);
             this.leaderapi.Name = "leaderapi";
             this.leaderapi.Size = new System.Drawing.Size(72, 21);
             this.leaderapi.TabIndex = 26;
@@ -145,9 +155,9 @@
             // guildapikey
             // 
             this.guildapikey.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.guildapikey.Location = new System.Drawing.Point(164, 292);
+            this.guildapikey.Location = new System.Drawing.Point(164, 281);
             this.guildapikey.Name = "guildapikey";
-            this.guildapikey.Size = new System.Drawing.Size(475, 22);
+            this.guildapikey.Size = new System.Drawing.Size(466, 22);
             this.guildapikey.TabIndex = 25;
             // 
             // guildApiLabel
@@ -156,7 +166,7 @@
             this.guildApiLabel.BackColor = System.Drawing.Color.Transparent;
             this.guildApiLabel.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guildApiLabel.ForeColor = System.Drawing.Color.White;
-            this.guildApiLabel.Location = new System.Drawing.Point(71, 289);
+            this.guildApiLabel.Location = new System.Drawing.Point(71, 281);
             this.guildApiLabel.Name = "guildApiLabel";
             this.guildApiLabel.Size = new System.Drawing.Size(76, 21);
             this.guildApiLabel.TabIndex = 24;
@@ -177,7 +187,7 @@
             // 
             this.addUserButton.Enabled = false;
             this.addUserButton.Font = new System.Drawing.Font("Impact", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.addUserButton.Location = new System.Drawing.Point(314, 115);
+            this.addUserButton.Location = new System.Drawing.Point(420, 115);
             this.addUserButton.Name = "addUserButton";
             this.addUserButton.Size = new System.Drawing.Size(177, 28);
             this.addUserButton.TabIndex = 3;
@@ -194,21 +204,6 @@
             this.userEntryText.TabIndex = 2;
             this.userEntryText.TextChanged += new System.EventHandler(this.userEntryText_TextChanged);
             // 
-            // rollsDropdown
-            // 
-            this.rollsDropdown.FormattingEnabled = true;
-            this.rollsDropdown.Items.AddRange(new object[] {
-            "1",
-            "2",
-            "3",
-            "4",
-            "5"});
-            this.rollsDropdown.Location = new System.Drawing.Point(497, 84);
-            this.rollsDropdown.Name = "rollsDropdown";
-            this.rollsDropdown.Size = new System.Drawing.Size(42, 21);
-            this.rollsDropdown.TabIndex = 1;
-            this.rollsDropdown.SelectedIndexChanged += new System.EventHandler(this.rollsDropdown_SelectedIndexChanged);
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -223,7 +218,7 @@
             // 
             this.databaseBox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::LottoManager.Properties.Settings.Default, "databaseBox", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.databaseBox.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.databaseBox.Location = new System.Drawing.Point(466, 248);
+            this.databaseBox.Location = new System.Drawing.Point(456, 235);
             this.databaseBox.Name = "databaseBox";
             this.databaseBox.Size = new System.Drawing.Size(173, 22);
             this.databaseBox.TabIndex = 14;
@@ -233,7 +228,7 @@
             // 
             this.hostnameBox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::LottoManager.Properties.Settings.Default, "hostBox", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.hostnameBox.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hostnameBox.Location = new System.Drawing.Point(465, 200);
+            this.hostnameBox.Location = new System.Drawing.Point(456, 195);
             this.hostnameBox.Name = "hostnameBox";
             this.hostnameBox.Size = new System.Drawing.Size(174, 22);
             this.hostnameBox.TabIndex = 13;
@@ -245,7 +240,7 @@
             this.label7.BackColor = System.Drawing.Color.Transparent;
             this.label7.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.ForeColor = System.Drawing.Color.White;
-            this.label7.Location = new System.Drawing.Point(374, 250);
+            this.label7.Location = new System.Drawing.Point(365, 236);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(85, 21);
             this.label7.TabIndex = 12;
@@ -257,7 +252,7 @@
             this.label6.BackColor = System.Drawing.Color.Transparent;
             this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.Color.White;
-            this.label6.Location = new System.Drawing.Point(410, 200);
+            this.label6.Location = new System.Drawing.Point(401, 196);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(49, 21);
             this.label6.TabIndex = 11;
@@ -266,7 +261,7 @@
             // passwordBox
             // 
             this.passwordBox.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.passwordBox.Location = new System.Drawing.Point(164, 249);
+            this.passwordBox.Location = new System.Drawing.Point(164, 235);
             this.passwordBox.Name = "passwordBox";
             this.passwordBox.PasswordChar = '*';
             this.passwordBox.Size = new System.Drawing.Size(174, 22);
@@ -286,7 +281,7 @@
             this.label5.BackColor = System.Drawing.Color.Transparent;
             this.label5.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(61, 249);
+            this.label5.Location = new System.Drawing.Point(61, 236);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(86, 21);
             this.label5.TabIndex = 8;
@@ -318,7 +313,7 @@
             // 
             // connectionButton
             // 
-            this.connectionButton.Location = new System.Drawing.Point(564, 365);
+            this.connectionButton.Location = new System.Drawing.Point(555, 346);
             this.connectionButton.Name = "connectionButton";
             this.connectionButton.Size = new System.Drawing.Size(75, 23);
             this.connectionButton.TabIndex = 15;
@@ -330,7 +325,7 @@
             // 
             this.saveSettingsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.saveSettingsButton.ForeColor = System.Drawing.Color.Black;
-            this.saveSettingsButton.Location = new System.Drawing.Point(164, 365);
+            this.saveSettingsButton.Location = new System.Drawing.Point(164, 346);
             this.saveSettingsButton.Name = "saveSettingsButton";
             this.saveSettingsButton.Size = new System.Drawing.Size(111, 23);
             this.saveSettingsButton.TabIndex = 22;
@@ -578,7 +573,8 @@
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(397, 146);
             this.textBox2.TabIndex = 2;
-            this.textBox2.Text = resources.GetString("textBox2.Text");
+            this.textBox2.Text = "New in this Version:\r\n- Internal Code Updates\r\n- Enter ticket number manually; no" +
+    " more dropdown!\r\n- Fixed issue with submitted user when API is down";
             // 
             // label9
             // 
@@ -703,7 +699,6 @@
         private System.Windows.Forms.TextBox goldAmount;
         private System.Windows.Forms.Button saveSettingsButton;
         private System.Windows.Forms.TextBox userEntryText;
-        private System.Windows.Forms.ComboBox rollsDropdown;
         private System.Windows.Forms.Button addUserButton;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
@@ -721,6 +716,7 @@
         private System.Windows.Forms.Label leaderapi;
         private System.Windows.Forms.TextBox guildapikey;
         private System.Windows.Forms.Label guildApiLabel;
+        private System.Windows.Forms.TextBox ticketsCount;
     }
 }
 

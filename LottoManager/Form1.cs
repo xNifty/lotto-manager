@@ -183,16 +183,20 @@ namespace LottoManager {
             string databasePassword;
             string databaseHost;
             string databaseName;
+            string guildLeadAPI;
+            string leaderAPI;
 
             databaseUsername = usernameBox.Text;
             databasePassword = passwordBox.Text;
             databaseHost = hostnameBox.Text;
             databaseName = databaseBox.Text;
+            guildLeadAPI = guildapikey.Text;
+            leaderAPI = leaderapikey.Text;
 
             //MessageBox.Show(databasePassword.ToString());
 
-            if (databaseUsername == "" || databasePassword == "" || databaseHost == "" || databaseName == "") {
-                MessageBox.Show("Please fill out all database connection details.");
+            if (databaseUsername == "" || databasePassword == "" || databaseHost == "" || databaseName == "" || guildLeadAPI == "" || leaderAPI == "") {
+                MessageBox.Show("Please fill out all connection details.");
                 return;
             }
 
@@ -210,6 +214,8 @@ namespace LottoManager {
                 passwordBox.Enabled = false;
                 hostnameBox.Enabled = false;
                 databaseBox.Enabled = false;
+                guildapikey.Enabled = false;
+                leaderapikey.Enabled = false;
                 isConnected = true;
                 listResetButton.Enabled = true;
                 rollBox.Enabled = true;
@@ -223,6 +229,8 @@ namespace LottoManager {
                 passwordBox.Enabled = true;
                 hostnameBox.Enabled = true;
                 databaseBox.Enabled = true;
+                guildapikey.Enabled = true;
+                leaderapikey.Enabled = true;
                 isConnected = false;
                 //MessageBox.Show("Connection failed...");
             }
@@ -418,9 +426,13 @@ namespace LottoManager {
 
         private void addUserButton_Click(object sender, EventArgs e) {
             try {
+                int ticketsCounter;
+                int ticketsToUpdate = 0;
                 var userName = userEntryText.Text;
-                // Because the first option is index 0...
-                int rolls = rollsDropdown.SelectedIndex + 1;
+
+                if (int.TryParse(ticketsCount.Text, out ticketsCounter)) {
+                    ticketsToUpdate = ticketsCounter;
+                }
 
                 // Init the MySqlCommand class
                 MySqlCommand command = new MySqlCommand();
@@ -431,17 +443,17 @@ namespace LottoManager {
                  * */
                 command.CommandText = "call Add_Lotto_user(@p1, @p2)";
                 command.Parameters.AddWithValue("@p1", userName);
-                command.Parameters.AddWithValue("@p2", rolls);
+                command.Parameters.AddWithValue("@p2", ticketsToUpdate);
                 command.Connection = connection;
 
                 command.ExecuteNonQuery();
 
                 userEntryText.Clear();
-                rollsDropdown.SelectedIndex = 0;
+                ticketsCount.Clear();
 
                 addUserButton.Enabled = false;
 
-                MessageBox.Show(string.Format("Inserted/Updated {0}, with {1} rolls.", userName, rolls), "Success!");
+                MessageBox.Show(string.Format("Inserted/Updated {0}, with {1} rolls.", userName, ticketsToUpdate), "Success!");
             } catch (Exception ex) {
                 //Console.WriteLine("Error: {0}", ex);
                 MessageBox.Show(string.Format("Error occured: {0}", ex), "Error!");
@@ -449,19 +461,58 @@ namespace LottoManager {
         }
 
         private void userEntryText_TextChanged(object sender, EventArgs e) {
-            if (!string.IsNullOrEmpty(userEntryText.Text) && (rollsDropdown.SelectedIndex > -1)) {
-                if (guildRoster.Contains(userEntryText.Text)) {
-                    addUserButton.Enabled = true;
-                } else {
-                    addUserButton.Enabled = false;
+            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && isConnected)
+            {
+                if (generatedList)
+                {
+                    if (guildRoster.Contains(userEntryText.Text))
+                    {
+                        addUserButton.Enabled = true;
+                    }
+                    else
+                    {
+                        addUserButton.Enabled = false;
+                    }
                 }
-            } else {
+                else
+                {
+                    addUserButton.Enabled = true;
+                }
+            }
+            else
+            {
+                addUserButton.Enabled = false;
+            }
+        }
+
+        private void ticketsCount_TextChanged(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && isConnected)
+            {
+                if (generatedList)
+                {
+                    if (guildRoster.Contains(userEntryText.Text))
+                    {
+                        addUserButton.Enabled = true;
+                    }
+                    else
+                    {
+                        addUserButton.Enabled = false;
+                    }
+                }
+                else
+                {
+                    addUserButton.Enabled = true;
+                }
+            }
+            else
+            {
                 addUserButton.Enabled = false;
             }
         }
 
         private void rollsDropdown_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!string.IsNullOrEmpty(userEntryText.Text) && (rollsDropdown.SelectedIndex > -1) && isConnected == true) {
+            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && isConnected == true) {
                 addUserButton.Enabled = true;
             } else {
                 addUserButton.Enabled = false;
