@@ -22,22 +22,23 @@ using Newtonsoft.Json;
 namespace LottoManager {
 
     public partial class Form1 : Form {
+        private BackgroundWorker _bgw = new BackgroundWorker();
 
-        BackgroundWorker bgw = new BackgroundWorker();
-
-        private MySqlConnection connection;
-        private bool isConnected = false;
-        private bool generatedList = false;
-        private Dictionary<string, string> dict = new Dictionary<string, string>();
-        private List<string> randomList = new List<string>();
-        private List<string> winnerList = new List<string>();
-        private List<string> guildRoster = new List<string>();
+        private MySqlConnection _connection;
+        private bool _isConnected = false;
+        private bool _generatedList = false;
+        private readonly Dictionary<string, string> _dict = new Dictionary<string, string>();
+        private readonly List<string> _randomList = new List<string>();
+        private List<string> _winnerList = new List<string>();
+        private readonly List<string> _guildRoster = new List<string>();
 
         public Form1() {
             InitializeComponent();
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             this.DoubleBuffered = true;
+            
+            // Version object
 
             //guildRoster.ForEach(Console.WriteLine);
 
@@ -45,13 +46,14 @@ namespace LottoManager {
             userEntryText.AutoCompleteSource = AutoCompleteSource.CustomSource;
 
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed) {
-                System.Deployment.Application.ApplicationDeployment cd = System.Deployment.Application.ApplicationDeployment.CurrentDeployment;
-                Version version = cd.CurrentVersion;
+                var cd = System.Deployment.Application.ApplicationDeployment.CurrentDeployment;
+                var version = cd.CurrentVersion;
                 Console.WriteLine(version);
-                Text = Text + " - " + version.Major + "." + version.Minor + "." + version.Build + "." + version.Revision;
-            } else {
-                var version = "Debug Mode";
-                Text = Text + " - " + version;
+                Text = Text + " - " + version.Major + "." + version.Minor + @"." + version.Build + "." + version.Revision;
+            } else
+            {
+                const string versionText = "Debug Mode";
+                Text = Text + " - " + versionText;
             }
 
             rollButton.Enabled = false;
@@ -59,11 +61,7 @@ namespace LottoManager {
             rollBox.Enabled = false;
             richTextBox1.DetectUrls = true;
 
-            if (isConnected == true) {
-                clearDatabase.Enabled = true;
-            } else {
-                clearDatabase.Enabled = false;
-            }
+            clearDatabase.Enabled = _isConnected == true;
 
             usernameBox.Text = Properties.Settings.Default.usernameBox;
             hostnameBox.Text = Properties.Settings.Default.hostBox;
@@ -72,11 +70,17 @@ namespace LottoManager {
             leaderapikey.Text = Properties.Settings.Default.leaderapikey;
         }
 
+        [Localizable(false)]
+        public sealed override string Text
+        {
+            get { return base.Text; }
+            set { base.Text = value; }
+        }
+
         private void rollBox_TextChanged(object sender, EventArgs e) {
-            int rolls;
             //MessageBox.Show(isConnected.ToString());
             try {
-                if ((int.TryParse(rollBox.Text, out rolls)) && (isConnected == true) && (randomList.Any())) {
+                if ((int.TryParse(rollBox.Text, out _)) && (_isConnected == true) && (_randomList.Any())) {
                     rollButton.Enabled = true;
                     //MessageBox.Show("Entry was a number.");
                 } else {
@@ -90,8 +94,7 @@ namespace LottoManager {
         }
 
         private void rollButton_Click(object sender, EventArgs e) {
-            int rollCount;
-            int.TryParse(rollBox.Text, out rollCount);
+            int.TryParse(rollBox.Text, out var rollCount);
             var passedCounter = Tuple.Create<int>(rollCount);
 
             rollingProgress.Visible = true;
@@ -110,51 +113,56 @@ namespace LottoManager {
                 Application.DoEvents();
             }
 
-            if (!backgroundWorker2.IsBusy) {
-                rollButton.Enabled = true;
-                rollingProgress.Style = ProgressBarStyle.Continuous;
-            }
-            
+            if (backgroundWorker2.IsBusy) return;
+            rollButton.Enabled = true;
+            rollingProgress.Style = ProgressBarStyle.Continuous;
+
             //winnerBox.Text = randomizeList(rollCount);
         }
 
-        void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e) {
-
-            Tuple<int> rolls = e.Argument as Tuple<int>;
-            Tuple<string, List<string>> returnedResults = e.Argument as Tuple<string, List<string>>;
-
-
-            returnedResults = RandomizeList.selectWinner(rolls.Item1, randomList);
+        private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e) {
+            if (!(e.Argument is Tuple<int> rolls)) return;
+            var returnedResults = RandomizeList.SelectWinner(rolls.Item1, _randomList);
 
             //String winner = RandomizeList.selectWinner(rolls.Item1, randomList).Item1;
-            String winner = returnedResults.Item1;
+            var winner = returnedResults.Item1;
 
-            if (winnerList.Any()) {
-                winnerList.Clear();
-                winnerList = returnedResults.Item2;
+            if (_winnerList.Any()) {
+                _winnerList.Clear();
+                _winnerList = returnedResults.Item2;
             } else {
-                winnerList = returnedResults.Item2;
+                _winnerList = returnedResults.Item2;
             }
 
-            e.Result = Tuple.Create<String>(winner);
+            e.Result = Tuple.Create<string>(winner);
         }
 
-        void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            Console.WriteLine("Post-run History: {0}", winnerList.Count);
-            Tuple<String> res = e.Result as Tuple<String>;
-            winnerBox.Text = res.Item1;
-            wonItemsBox.Enabled = true;
+        private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            Console.WriteLine("Post-run History: {0}", _winnerList.Count);
+            var res = e.Result as Tuple<string>;
+            try
+            {
+                winnerBox.Text = res.Item1;
+                wonItemsBox.Enabled = true;
+            }
+            catch (System.NullReferenceException)
+            {
+                
+            }
         }
 
         // Controls panel border
         private void panel1_Paint(object sender, PaintEventArgs e) {
-            ControlPaint.DrawBorder(e.Graphics, this.panel1.ClientRectangle, Color.Gold, 3, ButtonBorderStyle.Solid, Color.Gold, 3, ButtonBorderStyle.Solid,
-                                    Color.Gold, 3, ButtonBorderStyle.Solid, Color.Gold, 3, ButtonBorderStyle.Solid);
+            ControlPaint.DrawBorder(
+                e.Graphics, this.panel1.ClientRectangle, Color.Gold, 3, ButtonBorderStyle.Solid, 
+                Color.Gold, 3, ButtonBorderStyle.Solid, Color.Gold, 3, ButtonBorderStyle.Solid, Color.Gold, 3, 
+                ButtonBorderStyle.Solid
+            );
         }
 
 
         // Attempt connection to MySQL
-        private bool OpenConnection(MySqlConnection connection) {
+        private static bool OpenConnection(IDbConnection connection) {
             try {
                 connection.Open();
                 return true;
@@ -179,34 +187,36 @@ namespace LottoManager {
         }
 
         private void connectionButton_Click(object sender, EventArgs e) {
-            string databaseUsername;
-            string databasePassword;
-            string databaseHost;
-            string databaseName;
-            string guildLeadAPI;
-            string leaderAPI;
-
-            databaseUsername = usernameBox.Text;
-            databasePassword = passwordBox.Text;
-            databaseHost = hostnameBox.Text;
-            databaseName = databaseBox.Text;
-            guildLeadAPI = guildapikey.Text;
-            leaderAPI = leaderapikey.Text;
+            var databaseUsername = usernameBox.Text;
+            var databasePassword = passwordBox.Text;
+            var databaseHost = hostnameBox.Text;
+            var databaseName = databaseBox.Text;
+            var guildLeadApi = guildapikey.Text;
+            var leaderApi = leaderapikey.Text;
 
             //MessageBox.Show(databasePassword.ToString());
 
-            if (databaseUsername == "" || databasePassword == "" || databaseHost == "" || databaseName == "" || guildLeadAPI == "" || leaderAPI == "") {
+            if (
+                databaseUsername == "" || 
+                databasePassword == "" || 
+                databaseHost == "" || 
+                databaseName == "" || 
+                guildLeadApi == "" || 
+                leaderApi == ""
+               ) {
                 MessageBox.Show("Please fill out all connection details.");
                 return;
             }
 
             // Oh god this is bad...really should redo
-            string connectionString;
-            connectionString = "SERVER=" + databaseHost + "; PORT = 3306 ;" + "DATABASE=" + databaseName + ";" + "UID=" + databaseUsername + ";" + "PASSWORD=" + databasePassword + ";";
+            var connectionString = "SERVER=" + databaseHost + 
+                                   "; PORT = 3306 ;" + "DATABASE=" + databaseName + 
+                                   ";" + "UID=" + databaseUsername + ";" + 
+                                   "PASSWORD=" + databasePassword + ";";
 
-            connection = new MySqlConnection(connectionString);
+            _connection = new MySqlConnection(connectionString);
 
-            if (OpenConnection(connection)) {
+            if (OpenConnection(_connection)) {
                 connectionLabel.ForeColor = Color.Green;
                 connectionLabel.Text = "Database: Connected!";
                 connectionButton.Enabled = false;
@@ -216,7 +226,7 @@ namespace LottoManager {
                 databaseBox.Enabled = false;
                 guildapikey.Enabled = false;
                 leaderapikey.Enabled = false;
-                isConnected = true;
+                _isConnected = true;
                 listResetButton.Enabled = true;
                 rollBox.Enabled = true;
                 clearDatabase.Enabled = true;
@@ -231,7 +241,7 @@ namespace LottoManager {
                 databaseBox.Enabled = true;
                 guildapikey.Enabled = true;
                 leaderapikey.Enabled = true;
-                isConnected = false;
+                _isConnected = false;
                 //MessageBox.Show("Connection failed...");
             }
 
@@ -239,31 +249,32 @@ namespace LottoManager {
             {
                 using (var webClient = new System.Net.WebClient())
                 {
-                    string guildID = guildapikey.Text;
-                    string guildLeaderAPI = leaderapikey.Text;
-                    string baseURL = "https://api.guildwars2.com/v2/guild/";
-                    string accessURL = baseURL + guildID + "/" + "members?access_token=" + guildLeaderAPI;
-                    Console.WriteLine(accessURL);
-                    var json = webClient.DownloadString(accessURL);
+                    // This will never change unless ANet updates their API URL
+                    const string baseUrl = "https://api.guildwars2.com/v2/guild/";
+                    
+                    var guildId = guildapikey.Text;
+                    var guildLeaderApi = leaderapikey.Text;
+                    var accessUrl = baseUrl + guildId + "/" + "members?access_token=" + guildLeaderApi;
+                    var json = webClient.DownloadString(accessUrl);
                     dynamic jsonObj = JsonConvert.DeserializeObject(json);
 
                     foreach (var obj in jsonObj)
                     {
                         //Console.WriteLine(obj.name);
-                        guildRoster.Add((string)obj.name);
+                        _guildRoster.Add((string)obj.name);
                     }
 
-                    generatedList = true;
+                    _generatedList = true;
                 }
             }
             catch
             {
-                generatedList = false;
+                _generatedList = false;
             }
 
-            if (generatedList)
+            if (_generatedList)
             {
-                userEntryText.AutoCompleteCustomSource = guildRoster.ToAutoCompleteStringCollection();
+                userEntryText.AutoCompleteCustomSource = _guildRoster.ToAutoCompleteStringCollection();
                 apistatus.ForeColor = Color.Green;
                 apistatus.Text = "GW2 API Status: Connected";
             }
@@ -280,51 +291,49 @@ namespace LottoManager {
                                                 "Confirm reset!", MessageBoxButtons.YesNo);
 
             if (confirmReset == DialogResult.Yes) {
-                randomList.Clear();
-                dict.Clear();
+                _randomList.Clear();
+                _dict.Clear();
                 rollBox.Clear();
-                if (!randomList.Any()) {
-                    try {
-                        MySqlCommand command = new MySqlCommand();
-                        MySqlDataReader reader;
-                        command.CommandText = "call List_Lotto_Users()";
-                        command.Connection = connection;
+                if (_randomList.Any()) return;
+                try {
+                    var command = new MySqlCommand();
+                    MySqlDataReader reader;
+                    command.CommandText = "call List_Lotto_Users()";
+                    command.Connection = _connection;
 
-                        //reader = command.ExecuteReader();
+                    //reader = command.ExecuteReader();
 
-                        using (reader = command.ExecuteReader()) {
-                            while (reader.Read()) {
-                                dict.Add(reader[0].ToString(), reader[1].ToString());
-                            }
+                    using (reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            _dict.Add(reader[0].ToString(), reader[1].ToString());
                         }
+                    }
 
-                        // Take the number of tickets, and add that many entries to the List
-                        foreach (KeyValuePair<string, string> kvpList in dict) {
-                            int tickets;
-                            int.TryParse(kvpList.Value, out tickets);
+                    // Take the number of tickets, and add that many entries to the List
+                    foreach (var kvpList in _dict) {
+                        int.TryParse(kvpList.Value, out var tickets);
 
-                            for (int i = 0; i < tickets; i++) {
-                                randomList.Add(kvpList.Key);
-                            }
+                        for (var i = 0; i < tickets; i++) {
+                            _randomList.Add(kvpList.Key);
                         }
+                    }
 
-                        randomList.Shuffle();
+                    _randomList.Shuffle();
 
-                        // Printing out the List
-                        //randomList.ForEach(Console.WriteLine);
-                        MessageBox.Show("List generation completed.");
-                    } catch (Exception ex) {
-                        //Console.WriteLine("Error: {0}", ex);
-                        //winnerBox.Text = "Error";
-                        if (ex is System.InvalidOperationException) {
-                            try {
-                                OpenConnection(connection);
-                            } catch (Exception exp) {
-                                MessageBox.Show(string.Format("Error on reconnect: {0}", exp), "Error!");
-                            }
-                        } else {
-                            MessageBox.Show(string.Format("Error: {0}", ex), "Error!");
+                    // Printing out the List
+                    //randomList.ForEach(Console.WriteLine);
+                    MessageBox.Show("List generation completed.");
+                } catch (Exception ex) {
+                    //Console.WriteLine("Error: {0}", ex);
+                    //winnerBox.Text = "Error";
+                    if (ex is System.InvalidOperationException) {
+                        try {
+                            OpenConnection(_connection);
+                        } catch (Exception exp) {
+                            MessageBox.Show($"Error on reconnect: {exp}", "Error!");
                         }
+                    } else {
+                        MessageBox.Show($"Error: {ex}", "Error!");
                     }
                 }
                 //randomList.ForEach(Console.WriteLine);
@@ -337,27 +346,28 @@ namespace LottoManager {
         private void submitWinnerButton_Click(object sender, EventArgs e) {
             try {
                 var winner = winnerBox.Text;
-                int rolls;
-                int.TryParse(rollBox.Text, out rolls);
+                int.TryParse(rollBox.Text, out var rolls);
                 var items = wonItemsBox.Text;
-                string rollHistory;
-                DateTime date = DateTime.Now;
-
-                Console.WriteLine("Count: {0}", winnerList.Count);
-                for (int j = 0; j < winnerList.Count; j++)
-                    Console.WriteLine("History list: {0}", winnerList[j]);
+                var date = DateTime.Now;
+                
+                // Uncomment this for testing
+                /*
+                 Console.WriteLine("Count: {0}", _winnerList.Count);
+                 foreach (var t in _winnerList)
+                     Console.WriteLine("History list: {0}", t);
+                */
 
                 // Init the MySqlCommand class
-                MySqlCommand command = new MySqlCommand();
+                var command = new MySqlCommand();
 
                 // Let's make sure the history list has objects....otherwise, throw an error and do nothing
-                if (!winnerList.Any()) {
+                if (!_winnerList.Any()) {
                     MessageBox.Show("There was an error with the roll history list and it could not be submitted. Please " +
                                     "submit the winner information manually through the site.", "Error!");
                     return;
                 }
 
-                rollHistory = string.Join(Environment.NewLine, winnerList);
+                var rollHistory = string.Join(Environment.NewLine, _winnerList);
 
                 /*
                  * Build and execute the stored procedure
@@ -371,7 +381,7 @@ namespace LottoManager {
                 command.Parameters.AddWithValue("@p4", date);
                 command.Parameters.AddWithValue("@p5", rollHistory);
                 
-                command.Connection = connection;
+                command.Connection = _connection;
 
                 command.ExecuteNonQuery();
 
@@ -382,11 +392,11 @@ namespace LottoManager {
                 winnerBox.Enabled = false;
                 wonItemsBox.Enabled = false;
                
-                MessageBox.Show(string.Format("Inserted {0}, with {1} rolls and items: {2}.", winner, rolls, items), "Success!");
-                winnerList.Clear();
+                MessageBox.Show($"Inserted {winner}, with {rolls} rolls and items: {items}.", "Success!");
+                _winnerList.Clear();
             } catch (Exception ex) {
                 //Console.WriteLine("Error: {0}", ex);
-                MessageBox.Show(string.Format("Error occured: {0}", ex), "Error!");
+                MessageBox.Show($"Error occured: {ex}", "Error!");
             }
         }
 
@@ -399,20 +409,15 @@ namespace LottoManager {
         }
 
         private void calculateGoldButton_Click(object sender, EventArgs e) {
-            double amount;
-            double.TryParse(goldAmount.Text, out amount);
-            double percent = 0.70;
-            double calculatedAmount = (amount * percent);
-            MessageBox.Show(string.Format("Calculated amount: {0}", calculatedAmount), "Calculated gold amount!");
+            double.TryParse(goldAmount.Text, out var amount);
+            const double percent = 0.70;
+            var calculatedAmount = (amount * percent);
+            MessageBox.Show($"Calculated amount: {calculatedAmount}", "Calculated gold amount!");
         }
 
-        private void goldAmount_TextChanged(object sender, EventArgs e) {
-            int gold;
-            if (int.TryParse(goldAmount.Text, out gold)) {
-                calculateGoldButton.Enabled = true;
-            } else {
-                calculateGoldButton.Enabled = false;
-            }
+        private void goldAmount_TextChanged(object sender, EventArgs e)
+        {
+            calculateGoldButton.Enabled = int.TryParse(goldAmount.Text, out _);
         }
 
         private void saveSettingsButton_Click(object sender, EventArgs e) {
@@ -426,25 +431,26 @@ namespace LottoManager {
 
         private void addUserButton_Click(object sender, EventArgs e) {
             try {
-                int ticketsCounter;
-                int ticketsToUpdate = 0;
+                var ticketsToUpdate = 0;
                 var userName = userEntryText.Text;
 
-                if (int.TryParse(ticketsCount.Text, out ticketsCounter)) {
+                if (int.TryParse(ticketsCount.Text, out var ticketsCounter)) {
                     ticketsToUpdate = ticketsCounter;
                 }
 
                 // Init the MySqlCommand class
-                MySqlCommand command = new MySqlCommand();
+                var command = new MySqlCommand
+                {
+                    CommandText = "call Add_Lotto_user(@p1, @p2)"
+                };
 
                 /*
                  * Build and execute the stored procedure
                  * 
                  * */
-                command.CommandText = "call Add_Lotto_user(@p1, @p2)";
                 command.Parameters.AddWithValue("@p1", userName);
                 command.Parameters.AddWithValue("@p2", ticketsToUpdate);
-                command.Connection = connection;
+                command.Connection = _connection;
 
                 command.ExecuteNonQuery();
 
@@ -453,31 +459,17 @@ namespace LottoManager {
 
                 addUserButton.Enabled = false;
 
-                MessageBox.Show(string.Format("Inserted/Updated {0}, with {1} rolls.", userName, ticketsToUpdate), "Success!");
+                MessageBox.Show($"Inserted/Updated {userName}, with {ticketsToUpdate} rolls.", "Success!");
             } catch (Exception ex) {
                 //Console.WriteLine("Error: {0}", ex);
-                MessageBox.Show(string.Format("Error occured: {0}", ex), "Error!");
+                MessageBox.Show($"Error occured: {ex}", "Error!");
             }
         }
 
         private void userEntryText_TextChanged(object sender, EventArgs e) {
-            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && isConnected)
+            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && _isConnected)
             {
-                if (generatedList)
-                {
-                    if (guildRoster.Contains(userEntryText.Text))
-                    {
-                        addUserButton.Enabled = true;
-                    }
-                    else
-                    {
-                        addUserButton.Enabled = false;
-                    }
-                }
-                else
-                {
-                    addUserButton.Enabled = true;
-                }
+                addUserButton.Enabled = !_generatedList || _guildRoster.Contains(userEntryText.Text);
             }
             else
             {
@@ -487,23 +479,9 @@ namespace LottoManager {
 
         private void ticketsCount_TextChanged(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && isConnected)
+            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && _isConnected)
             {
-                if (generatedList)
-                {
-                    if (guildRoster.Contains(userEntryText.Text))
-                    {
-                        addUserButton.Enabled = true;
-                    }
-                    else
-                    {
-                        addUserButton.Enabled = false;
-                    }
-                }
-                else
-                {
-                    addUserButton.Enabled = true;
-                }
+                addUserButton.Enabled = !_generatedList || _guildRoster.Contains(userEntryText.Text);
             }
             else
             {
@@ -512,7 +490,7 @@ namespace LottoManager {
         }
 
         private void rollsDropdown_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && isConnected == true) {
+            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && _isConnected == true) {
                 addUserButton.Enabled = true;
             } else {
                 addUserButton.Enabled = false;
@@ -538,7 +516,7 @@ namespace LottoManager {
         }
 
         private void clearDatabase_Click(object sender, EventArgs e) {
-            if (isConnected == true) {
+            if (_isConnected == true) {
                 var confirmReset = MessageBox.Show("!!! WARNING WARNING WARNING WARNING WARNING !!!\n" +
                                                 "Clicking yes will clear all current lotto participants.",
                                                 "Confirm database clear!?", MessageBoxButtons.YesNo);
@@ -554,9 +532,9 @@ namespace LottoManager {
                                                 "THERE IS NO GOING BACK FROM THIS!!!!",
                                                 "ARE YOU 100% SURE?", MessageBoxButtons.YesNo);
                     if (confirmReset2 == DialogResult.Yes) {
-                        MySqlCommand command = new MySqlCommand();
+                        var command = new MySqlCommand();
                         command.CommandText = "call Clear_Lotto_Users()";
-                        command.Connection = connection;
+                        command.Connection = _connection;
 
                         command.ExecuteNonQuery();
                     } else {
@@ -572,17 +550,10 @@ namespace LottoManager {
         }
     }
 
-    // I'm not even sure this is doing anything useful at this point....
-    class DrawPanel : Panel {
-        public DrawPanel() {
-            this.DoubleBuffered = true;
-        }
-    }
-
     public static class EnumerableExtensionsEx {
         public static AutoCompleteStringCollection ToAutoCompleteStringCollection (
             this IEnumerable<string> enumerable) {
-            if (enumerable == null) throw new ArgumentNullException("enumerable");
+            if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
             var autoComplete = new AutoCompleteStringCollection();
             foreach (var item in enumerable) autoComplete.Add(item);
             return autoComplete;

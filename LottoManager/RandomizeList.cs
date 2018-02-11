@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace LottoManager {
     public static class RandomizeList {
-        public static Tuple<string, List<string>> selectWinner(int rolls, List<string> randomList) {
+        public static Tuple<string, List<string>> SelectWinner(int rolls, List<string> randomList) {
             string winner = null;
             List<String> winnerList = new List<string>();
 

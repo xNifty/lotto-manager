@@ -573,8 +573,7 @@
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(397, 146);
             this.textBox2.TabIndex = 2;
-            this.textBox2.Text = "New in this Version:\r\n- Internal Code Updates\r\n- Enter ticket number manually; no" +
-    " more dropdown!\r\n- Fixed issue with submitted user when API is down";
+            this.textBox2.Text = "New in this Version:\r\n- Internal Code Updates";
             // 
             // label9
             // 
