@@ -573,7 +573,7 @@
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(397, 146);
             this.textBox2.TabIndex = 2;
-            this.textBox2.Text = "New in this Version:\r\n- Internal Code Updates";
+            this.textBox2.Text = "";
             // 
             // label9
             // 

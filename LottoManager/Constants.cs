@@ -46,5 +46,10 @@ namespace LottoManager
         
         internal const string SupportForums = "https://snoring.ninja/forums";
         internal const string LottoWebPage = "https://endgame.wtf/lotto";
+
+        // Set the text for the updates in this version text
+        internal const string UpdatesInThisVersion = "New in this Version:\r\n-Internal Code Updates";
+
+        internal const string DebugMode = "Debug Mode";
     }
 }

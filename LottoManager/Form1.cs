@@ -30,15 +30,15 @@ namespace LottoManager {
             userEntryText.AutoCompleteMode = AutoCompleteMode.Suggest;
             userEntryText.AutoCompleteSource = AutoCompleteSource.CustomSource;
 
+            textBox2.Text = Constants.UpdatesInThisVersion;
+
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed) {
                 var cd = System.Deployment.Application.ApplicationDeployment.CurrentDeployment;
                 var version = cd.CurrentVersion;
-                Console.WriteLine(version);
                 Text = Text + " - " + version.Major + "." + version.Minor + @"." + version.Build + "." + version.Revision;
             } else
             {
-                const string versionText = "Debug Mode";
-                Text = Text + " - " + versionText;
+                Text = Text + " - " + Constants.DebugMode;
             }
 
             rollButton.Enabled = false;
