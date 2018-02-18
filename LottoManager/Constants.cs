@@ -1,8 +1,11 @@
-﻿namespace LottoManager
+﻿using System.ComponentModel.Design.Serialization;
+
+namespace LottoManager
 {
     internal static class Constants
     {
-        internal const string InvalidConnectionDetails = "";
+        internal const string InvalidConnectionDetails = "Invalid username or password, please try again.";
+        internal const string UnabledToContactServer = "Cannot connect to server.  Please try again.";
         internal const string MissingConnectionDetails = "Please fill out all connection details.";
         internal const string DatabaseConnected = "Database: Connected!";
         internal const string DatabaseNotConnected = "Database: Not Connected!";
@@ -24,9 +27,19 @@
                                                 "submitted. Please submit the winner information manually through " +
                                                 "the site.";
         
+        internal const string AddedUpdatedUserSuccess = "Inserted/Updated {0}, with {1} rolls.";
+        
         internal const string InsertedWinnerText = "Inserted {0}, with {1} rolls and items: {2}.";
         internal const string CalculatedAmount = "Calculated amount: {0}";
         internal const string CalculatedAmountSuccess = "Calculated gold amount!";
+
+        internal const string ConfirmDatabaseClear = "!!! WARNING !!!\n" +
+                                                     "Are you 100% sure you want to clear the database?\n" +
+                                                     "THERE IS NO GOING BACK FROM THIS ACTION.";
+
+        internal const string ConfirmDatabaseClearboxTitle = "ARE YOU 100% SURE?";
+
+        internal const string ConnectToDatabaseError = "Please connect to the database.";
     }
 
     internal static class VariableConstants

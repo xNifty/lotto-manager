@@ -4,20 +4,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows;
-using System.Windows.Input;
 using System.Data.SqlClient;
-using System.Threading;
 using MySql.Data.MySqlClient;
-using System.Drawing.Drawing2D;
 using LottoManager.Properties;
-using System.Reflection;
 using Newtonsoft.Json;
-
-// @TODO : rewrite all of this stuff
 
 namespace LottoManager {
 
@@ -25,8 +16,8 @@ namespace LottoManager {
         private BackgroundWorker _bgw = new BackgroundWorker();
 
         private MySqlConnection _connection;
-        private bool _isConnected = false;
-        private bool _generatedList = false;
+        private bool _isConnected;
+        private bool _generatedList;
         private readonly Dictionary<string, string> _dict = new Dictionary<string, string>();
         private readonly List<string> _randomList = new List<string>();
         private List<string> _winnerList = new List<string>();
@@ -34,9 +25,9 @@ namespace LottoManager {
 
         public Form1() {
             InitializeComponent();
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
-            this.DoubleBuffered = true;
+            DoubleBuffered = true;
             
             // Version object
 
@@ -61,26 +52,26 @@ namespace LottoManager {
             rollBox.Enabled = false;
             richTextBox1.DetectUrls = true;
 
-            clearDatabase.Enabled = _isConnected == true;
+            clearDatabase.Enabled = _isConnected;
 
-            usernameBox.Text = Properties.Settings.Default.usernameBox;
-            hostnameBox.Text = Properties.Settings.Default.hostBox;
-            databaseBox.Text = Properties.Settings.Default.databaseBox;
-            guildapikey.Text = Properties.Settings.Default.guildapikey;
-            leaderapikey.Text = Properties.Settings.Default.leaderapikey;
+            usernameBox.Text = Settings.Default.usernameBox;
+            hostnameBox.Text = Settings.Default.hostBox;
+            databaseBox.Text = Settings.Default.databaseBox;
+            guildapikey.Text = Settings.Default.guildapikey;
+            leaderapikey.Text = Settings.Default.leaderapikey;
         }
 
         [Localizable(false)]
         public sealed override string Text
         {
-            get { return base.Text; }
-            set { base.Text = value; }
+            get => base.Text;
+            set => base.Text = value;
         }
 
         private void rollBox_TextChanged(object sender, EventArgs e) {
             //MessageBox.Show(isConnected.ToString());
             try {
-                if ((int.TryParse(rollBox.Text, out _)) && (_isConnected == true) && (_randomList.Any())) {
+                if (int.TryParse(rollBox.Text, out _) && _isConnected && _randomList.Any()) {
                     rollButton.Enabled = true;
                     //MessageBox.Show("Entry was a number.");
                 } else {
@@ -95,14 +86,14 @@ namespace LottoManager {
 
         private void rollButton_Click(object sender, EventArgs e) {
             int.TryParse(rollBox.Text, out var rollCount);
-            var passedCounter = Tuple.Create<int>(rollCount);
+            var passedCounter = Tuple.Create(rollCount);
 
             rollingProgress.Visible = true;
 
             backgroundWorker2.WorkerReportsProgress = true;
-            backgroundWorker2.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker2_RunWorkerCompleted);
+            backgroundWorker2.RunWorkerCompleted += backgroundWorker2_RunWorkerCompleted;
 
-            backgroundWorker2.DoWork += new DoWorkEventHandler(backgroundWorker2_DoWork);
+            backgroundWorker2.DoWork += backgroundWorker2_DoWork;
             backgroundWorker2.RunWorkerAsync(passedCounter);
 
             rollingProgress.Style = ProgressBarStyle.Marquee;
@@ -134,27 +125,20 @@ namespace LottoManager {
                 _winnerList = returnedResults.Item2;
             }
 
-            e.Result = Tuple.Create<string>(winner);
+            e.Result = Tuple.Create(winner);
         }
 
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            Console.WriteLine("Post-run History: {0}", _winnerList.Count);
-            var res = e.Result as Tuple<string>;
-            try
-            {
-                winnerBox.Text = res.Item1;
-                wonItemsBox.Enabled = true;
-            }
-            catch (System.NullReferenceException)
-            {
-                
-            }
+            if (!(e.Result is Tuple<string> res)) return;
+            winnerBox.Text = res.Item1;
+            wonItemsBox.Enabled = true;
+
         }
 
         // Controls panel border
         private void panel1_Paint(object sender, PaintEventArgs e) {
             ControlPaint.DrawBorder(
-                e.Graphics, this.panel1.ClientRectangle, Color.Gold, 3, ButtonBorderStyle.Solid, 
+                e.Graphics, panel1.ClientRectangle, Color.Gold, 3, ButtonBorderStyle.Solid, 
                 Color.Gold, 3, ButtonBorderStyle.Solid, Color.Gold, 3, ButtonBorderStyle.Solid, Color.Gold, 3, 
                 ButtonBorderStyle.Solid
             );
@@ -166,22 +150,26 @@ namespace LottoManager {
             try {
                 connection.Open();
                 return true;
-            } catch (SqlException ex) {
+            } catch (SqlException ex)
+            {
                 //When handling errors, you can your application's response based 
                 //on the error number.
                 //The two most common error numbers when connecting are as follows:
                 //0: Cannot connect to server.
                 //1045: Invalid user name and/or password.
                 //MessageBox.Show(ex.Number.ToString());
-                switch (ex.Number) {
-                    case 0:
-                        MessageBox.Show("Cannot connect to server.  Contact administrator");
-                        break;
-
-                    case 1045:
-                        MessageBox.Show("Invalid username/password, please try again");
-                        break;
+                if (ex.Number != 0)
+                {
+                    if (ex.Number == 1045)
+                    {
+                        MessageBox.Show(Constants.InvalidConnectionDetails);
+                    }
                 }
+                else
+                {
+                    MessageBox.Show(Constants.UnabledToContactServer);
+                }
+
                 return false;
             }
         }
@@ -285,12 +273,14 @@ namespace LottoManager {
         private void listResetButton_Click(object sender, EventArgs e) {
             var confirmReset = MessageBox.Show(Constants.ResetListClearWarning, Constants.ConfirmReset, MessageBoxButtons.YesNo);
 
-            if (confirmReset == DialogResult.Yes) {
+            if (confirmReset == DialogResult.Yes)
+            {
                 _randomList.Clear();
                 _dict.Clear();
                 rollBox.Clear();
                 if (_randomList.Any()) return;
-                try {
+                try
+                {
                     var command = new MySqlCommand();
                     MySqlDataReader reader;
                     command.CommandText = "call List_Lotto_Users()";
@@ -298,17 +288,21 @@ namespace LottoManager {
 
                     //reader = command.ExecuteReader();
 
-                    using (reader = command.ExecuteReader()) {
-                        while (reader.Read()) {
+                    using (reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
                             _dict.Add(reader[0].ToString(), reader[1].ToString());
                         }
                     }
 
                     // Take the number of tickets, and add that many entries to the List
-                    foreach (var kvpList in _dict) {
+                    foreach (var kvpList in _dict)
+                    {
                         int.TryParse(kvpList.Value, out var tickets);
 
-                        for (var i = 0; i < tickets; i++) {
+                        for (var i = 0; i < tickets; i++)
+                        {
                             _randomList.Add(kvpList.Key);
                         }
                     }
@@ -318,23 +312,27 @@ namespace LottoManager {
                     // Printing out the List
                     //randomList.ForEach(Console.WriteLine);
                     MessageBox.Show(Constants.ListGenerationComplete);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     //Console.WriteLine("Error: {0}", ex);
                     //winnerBox.Text = "Error";
-                    if (ex is System.InvalidOperationException) {
-                        try {
+                    if (ex is InvalidOperationException)
+                    {
+                        try
+                        {
                             OpenConnection(_connection);
-                        } catch (Exception exp) {
+                        }
+                        catch (Exception exp)
+                        {
                             MessageBox.Show(string.Format(Constants.ErrorWithVar, exp), Constants.ErrorText);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
                     }
                 }
-                //randomList.ForEach(Console.WriteLine);
-            } else {
-                //randomList.ForEach(Console.WriteLine);
-                return;
             }
         }
 
@@ -415,12 +413,12 @@ namespace LottoManager {
         }
 
         private void saveSettingsButton_Click(object sender, EventArgs e) {
-            Properties.Settings.Default.usernameBox = usernameBox.Text;
-            Properties.Settings.Default.hostBox = hostnameBox.Text;
-            Properties.Settings.Default.databaseBox = databaseBox.Text;
-            Properties.Settings.Default.guildapikey = guildapikey.Text;
-            Properties.Settings.Default.leaderapikey = leaderapikey.Text;
-            Properties.Settings.Default.Save();
+            Settings.Default.usernameBox = usernameBox.Text;
+            Settings.Default.hostBox = hostnameBox.Text;
+            Settings.Default.databaseBox = databaseBox.Text;
+            Settings.Default.guildapikey = guildapikey.Text;
+            Settings.Default.leaderapikey = leaderapikey.Text;
+            Settings.Default.Save();
         }
 
         private void addUserButton_Click(object sender, EventArgs e) {
@@ -453,7 +451,8 @@ namespace LottoManager {
 
                 addUserButton.Enabled = false;
 
-                MessageBox.Show($"Inserted/Updated {userName}, with {ticketsToUpdate} rolls.", "Success!");
+                MessageBox.Show(string.Format(Constants.AddedUpdatedUserSuccess, userName, ticketsToUpdate), 
+                    Constants.SuccessText);
             } catch (Exception ex) {
                 //Console.WriteLine("Error: {0}", ex);
                 MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
@@ -483,14 +482,6 @@ namespace LottoManager {
             }
         }
 
-        private void rollsDropdown_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!string.IsNullOrEmpty(userEntryText.Text) && (!string.IsNullOrEmpty(ticketsCount.Text)) && _isConnected == true) {
-                addUserButton.Enabled = true;
-            } else {
-                addUserButton.Enabled = false;
-            }
-        }
-
         private void supportForumsToolStripMenuItem_Click(object sender, EventArgs e) {
             System.Diagnostics.Process.Start(VariableConstants.SupportForums);
         }
@@ -509,41 +500,39 @@ namespace LottoManager {
             System.Diagnostics.Process.Start(e.LinkText);
         }
 
+        // On clicking the clear database button, we're going to prompt them twice to confirm
+        // since this is clearing out the lotto table
         private void clearDatabase_Click(object sender, EventArgs e) {
-            if (_isConnected == true) {
-                var confirmReset = MessageBox.Show("!!! WARNING WARNING WARNING WARNING WARNING !!!\n" +
-                                                "Clicking yes will clear all current lotto participants.",
-                                                "Confirm database clear!?", MessageBoxButtons.YesNo);
+            if (_isConnected) {
+                var confirmReset = MessageBox.Show(Constants.ConfirmDatabaseClear,
+                    Constants.ConfirmDatabaseClearboxTitle, MessageBoxButtons.YesNo);
 
                 if (confirmReset == DialogResult.Yes) {
                     /*
-                    * Confirm again...then build
+                    * Confirm again
                     * Build and execute the stored procedure
                     * 
                     */
-                    var confirmReset2 = MessageBox.Show("!!! WARNING WARNING WARNING WARNING WARNING !!!\n" +
-                                                "ARE YOU 100% SURE YOU WANT TO CLEAR THE DATABASE?\n" +
-                                                "THERE IS NO GOING BACK FROM THIS!!!!",
-                                                "ARE YOU 100% SURE?", MessageBoxButtons.YesNo);
-                    if (confirmReset2 == DialogResult.Yes) {
-                        var command = new MySqlCommand();
-                        command.CommandText = "call Clear_Lotto_Users()";
-                        command.Connection = _connection;
+                    var confirmReset2 = MessageBox.Show(Constants.ConfirmDatabaseClear,
+                        Constants.ConfirmDatabaseClearboxTitle, MessageBoxButtons.YesNo);
 
-                        command.ExecuteNonQuery();
-                    } else {
-                        return;
-                    }
-                } else {
-                    return;
+                    if (confirmReset2 != DialogResult.Yes) return;
+                    var command = new MySqlCommand
+                    {
+                        CommandText = "call Clear_Lotto_Users()",
+                        Connection = _connection
+                    };
+
+                    command.ExecuteNonQuery();
                 }
             } else {
                 // This should never happen, since the button is disabled at launch, but to be safe
-                MessageBox.Show("Please connect to the database.", "Error");
+                MessageBox.Show(Constants.ConnectToDatabaseError, Constants.ErrorText);
             }
         }
     }
 
+    // @TODO : move to own class?
     public static class EnumerableExtensionsEx {
         public static AutoCompleteStringCollection ToAutoCompleteStringCollection (
             this IEnumerable<string> enumerable) {
