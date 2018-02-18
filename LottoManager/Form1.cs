@@ -507,24 +507,23 @@ namespace LottoManager {
                 var confirmReset = MessageBox.Show(Constants.ConfirmDatabaseClear,
                     Constants.ConfirmDatabaseClearboxTitle, MessageBoxButtons.YesNo);
 
-                if (confirmReset == DialogResult.Yes) {
-                    /*
+                if (confirmReset != DialogResult.Yes) return;
+                /*
                     * Confirm again
                     * Build and execute the stored procedure
                     * 
                     */
-                    var confirmReset2 = MessageBox.Show(Constants.ConfirmDatabaseClear,
-                        Constants.ConfirmDatabaseClearboxTitle, MessageBoxButtons.YesNo);
+                var confirmReset2 = MessageBox.Show(Constants.ConfirmDatabaseClear,
+                    Constants.ConfirmDatabaseClearboxTitle, MessageBoxButtons.YesNo);
 
-                    if (confirmReset2 != DialogResult.Yes) return;
-                    var command = new MySqlCommand
-                    {
-                        CommandText = "call Clear_Lotto_Users()",
-                        Connection = _connection
-                    };
+                if (confirmReset2 != DialogResult.Yes) return;
+                var command = new MySqlCommand
+                {
+                    CommandText = "call Clear_Lotto_Users()",
+                    Connection = _connection
+                };
 
-                    command.ExecuteNonQuery();
-                }
+                command.ExecuteNonQuery();
             } else {
                 // This should never happen, since the button is disabled at launch, but to be safe
                 MessageBox.Show(Constants.ConnectToDatabaseError, Constants.ErrorText);
