@@ -204,7 +204,7 @@ namespace LottoManager {
                 guildLeadApi == "" || 
                 leaderApi == ""
                ) {
-                MessageBox.Show("Please fill out all connection details.");
+                MessageBox.Show(Constants.MissingConnectionDetails);
                 return;
             }
 
@@ -218,7 +218,7 @@ namespace LottoManager {
 
             if (OpenConnection(_connection)) {
                 connectionLabel.ForeColor = Color.Green;
-                connectionLabel.Text = "Database: Connected!";
+                connectionLabel.Text = Constants.DatabaseConnected;
                 connectionButton.Enabled = false;
                 usernameBox.Enabled = false;
                 passwordBox.Enabled = false;
@@ -233,7 +233,7 @@ namespace LottoManager {
                 //MessageBox.Show("Connected!");
             } else {
                 connectionLabel.ForeColor = Color.Red;
-                connectionLabel.Text = "Database: Not Connected!";
+                connectionLabel.Text = Constants.DatabaseNotConnected;
                 connectionButton.Enabled = true;
                 usernameBox.Enabled = true;
                 passwordBox.Enabled = true;
@@ -248,13 +248,10 @@ namespace LottoManager {
             try
             {
                 using (var webClient = new System.Net.WebClient())
-                {
-                    // This will never change unless ANet updates their API URL
-                    const string baseUrl = "https://api.guildwars2.com/v2/guild/";
-                    
+                {   
                     var guildId = guildapikey.Text;
                     var guildLeaderApi = leaderapikey.Text;
-                    var accessUrl = baseUrl + guildId + "/" + "members?access_token=" + guildLeaderApi;
+                    var accessUrl = VariableConstants.BaseUrl + guildId + "/" + "members?access_token=" + guildLeaderApi;
                     var json = webClient.DownloadString(accessUrl);
                     dynamic jsonObj = JsonConvert.DeserializeObject(json);
 
@@ -276,19 +273,17 @@ namespace LottoManager {
             {
                 userEntryText.AutoCompleteCustomSource = _guildRoster.ToAutoCompleteStringCollection();
                 apistatus.ForeColor = Color.Green;
-                apistatus.Text = "GW2 API Status: Connected";
+                apistatus.Text = Constants.Gw2ApiConnected;
             }
             else
             {
                 apistatus.ForeColor = Color.Red;
-                apistatus.Text = "GW2 API Status: Not Connected";
+                apistatus.Text = Constants.Gw2ApiNotConnected;
             }
         }
 
         private void listResetButton_Click(object sender, EventArgs e) {
-            var confirmReset = MessageBox.Show("Are you sure you wish to build the roll list for this session?\n" + 
-                                                "Doing so will clear any currently created list.",
-                                                "Confirm reset!", MessageBoxButtons.YesNo);
+            var confirmReset = MessageBox.Show(Constants.ResetListClearWarning, Constants.ConfirmReset, MessageBoxButtons.YesNo);
 
             if (confirmReset == DialogResult.Yes) {
                 _randomList.Clear();
@@ -322,7 +317,7 @@ namespace LottoManager {
 
                     // Printing out the List
                     //randomList.ForEach(Console.WriteLine);
-                    MessageBox.Show("List generation completed.");
+                    MessageBox.Show(Constants.ListGenerationComplete);
                 } catch (Exception ex) {
                     //Console.WriteLine("Error: {0}", ex);
                     //winnerBox.Text = "Error";
@@ -330,10 +325,10 @@ namespace LottoManager {
                         try {
                             OpenConnection(_connection);
                         } catch (Exception exp) {
-                            MessageBox.Show($"Error on reconnect: {exp}", "Error!");
+                            MessageBox.Show(string.Format(Constants.ErrorWithVar, exp), Constants.ErrorText);
                         }
                     } else {
-                        MessageBox.Show($"Error: {ex}", "Error!");
+                        MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
                     }
                 }
                 //randomList.ForEach(Console.WriteLine);
@@ -362,8 +357,7 @@ namespace LottoManager {
 
                 // Let's make sure the history list has objects....otherwise, throw an error and do nothing
                 if (!_winnerList.Any()) {
-                    MessageBox.Show("There was an error with the roll history list and it could not be submitted. Please " +
-                                    "submit the winner information manually through the site.", "Error!");
+                    MessageBox.Show(Constants.WinnerListError, Constants.ErrorText);
                     return;
                 }
 
@@ -392,11 +386,11 @@ namespace LottoManager {
                 winnerBox.Enabled = false;
                 wonItemsBox.Enabled = false;
                
-                MessageBox.Show($"Inserted {winner}, with {rolls} rolls and items: {items}.", "Success!");
+                MessageBox.Show(string.Format(Constants.InsertedWinnerText, winner, rolls, items), Constants.SuccessText);
                 _winnerList.Clear();
             } catch (Exception ex) {
                 //Console.WriteLine("Error: {0}", ex);
-                MessageBox.Show($"Error occured: {ex}", "Error!");
+                MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
             }
         }
 
@@ -412,7 +406,7 @@ namespace LottoManager {
             double.TryParse(goldAmount.Text, out var amount);
             const double percent = 0.70;
             var calculatedAmount = (amount * percent);
-            MessageBox.Show($"Calculated amount: {calculatedAmount}", "Calculated gold amount!");
+            MessageBox.Show(string.Format(Constants.CalculatedAmount, calculatedAmount), Constants.CalculatedAmountSuccess);
         }
 
         private void goldAmount_TextChanged(object sender, EventArgs e)
@@ -462,7 +456,7 @@ namespace LottoManager {
                 MessageBox.Show($"Inserted/Updated {userName}, with {ticketsToUpdate} rolls.", "Success!");
             } catch (Exception ex) {
                 //Console.WriteLine("Error: {0}", ex);
-                MessageBox.Show($"Error occured: {ex}", "Error!");
+                MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
             }
         }
 
@@ -498,11 +492,11 @@ namespace LottoManager {
         }
 
         private void supportForumsToolStripMenuItem_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start("https://snoring.ninja/forums");
+            System.Diagnostics.Process.Start(VariableConstants.SupportForums);
         }
 
         private void lottoSiteToolStripMenuItem_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start("https://endgame.wtf/lotto");
+            System.Diagnostics.Process.Start(VariableConstants.LottoWebPage);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -510,8 +504,8 @@ namespace LottoManager {
         }
 
         private void Link_Clicked(object sender, LinkClickedEventArgs e) {
-            Console.WriteLine("Clicked!");
-            Console.WriteLine(e.LinkText);
+//            Console.WriteLine("Clicked!");
+//            Console.WriteLine(e.LinkText);
             System.Diagnostics.Process.Start(e.LinkText);
         }
 
