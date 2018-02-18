@@ -13,8 +13,6 @@ using Newtonsoft.Json;
 namespace LottoManager {
 
     public partial class Form1 : Form {
-        private BackgroundWorker _bgw = new BackgroundWorker();
-
         private MySqlConnection _connection;
         private bool _isConnected;
         private bool _generatedList;
@@ -22,16 +20,12 @@ namespace LottoManager {
         private readonly List<string> _randomList = new List<string>();
         private List<string> _winnerList = new List<string>();
         private readonly List<string> _guildRoster = new List<string>();
+        
 
         public Form1() {
             InitializeComponent();
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
-            DoubleBuffered = true;
-            
-            // Version object
-
-            //guildRoster.ForEach(Console.WriteLine);
 
             userEntryText.AutoCompleteMode = AutoCompleteMode.Suggest;
             userEntryText.AutoCompleteSource = AutoCompleteSource.CustomSource;
@@ -239,7 +233,7 @@ namespace LottoManager {
                 {   
                     var guildId = guildapikey.Text;
                     var guildLeaderApi = leaderapikey.Text;
-                    var accessUrl = VariableConstants.BaseUrl + guildId + "/" + "members?access_token=" + guildLeaderApi;
+                    var accessUrl = Constants.BaseUrl + guildId + "/" + "members?access_token=" + guildLeaderApi;
                     var json = webClient.DownloadString(accessUrl);
                     dynamic jsonObj = JsonConvert.DeserializeObject(json);
 
@@ -273,65 +267,63 @@ namespace LottoManager {
         private void listResetButton_Click(object sender, EventArgs e) {
             var confirmReset = MessageBox.Show(Constants.ResetListClearWarning, Constants.ConfirmReset, MessageBoxButtons.YesNo);
 
-            if (confirmReset == DialogResult.Yes)
+            if (confirmReset != DialogResult.Yes) return;
+            _randomList.Clear();
+            _dict.Clear();
+            rollBox.Clear();
+            if (_randomList.Any()) return;
+            try
             {
-                _randomList.Clear();
-                _dict.Clear();
-                rollBox.Clear();
-                if (_randomList.Any()) return;
-                try
+                var command = new MySqlCommand();
+                MySqlDataReader reader;
+                command.CommandText = "call List_Lotto_Users()";
+                command.Connection = _connection;
+
+                //reader = command.ExecuteReader();
+
+                using (reader = command.ExecuteReader())
                 {
-                    var command = new MySqlCommand();
-                    MySqlDataReader reader;
-                    command.CommandText = "call List_Lotto_Users()";
-                    command.Connection = _connection;
-
-                    //reader = command.ExecuteReader();
-
-                    using (reader = command.ExecuteReader())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            _dict.Add(reader[0].ToString(), reader[1].ToString());
-                        }
+                        _dict.Add(reader[0].ToString(), reader[1].ToString());
                     }
-
-                    // Take the number of tickets, and add that many entries to the List
-                    foreach (var kvpList in _dict)
-                    {
-                        int.TryParse(kvpList.Value, out var tickets);
-
-                        for (var i = 0; i < tickets; i++)
-                        {
-                            _randomList.Add(kvpList.Key);
-                        }
-                    }
-
-                    _randomList.Shuffle();
-
-                    // Printing out the List
-                    //randomList.ForEach(Console.WriteLine);
-                    MessageBox.Show(Constants.ListGenerationComplete);
                 }
-                catch (Exception ex)
+
+                // Take the number of tickets, and add that many entries to the List
+                foreach (var kvpList in _dict)
                 {
-                    //Console.WriteLine("Error: {0}", ex);
-                    //winnerBox.Text = "Error";
-                    if (ex is InvalidOperationException)
+                    int.TryParse(kvpList.Value, out var tickets);
+
+                    for (var i = 0; i < tickets; i++)
                     {
-                        try
-                        {
-                            OpenConnection(_connection);
-                        }
-                        catch (Exception exp)
-                        {
-                            MessageBox.Show(string.Format(Constants.ErrorWithVar, exp), Constants.ErrorText);
-                        }
+                        _randomList.Add(kvpList.Key);
                     }
-                    else
+                }
+
+                _randomList.Shuffle();
+
+                // Printing out the List
+                //randomList.ForEach(Console.WriteLine);
+                MessageBox.Show(Constants.ListGenerationComplete);
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine("Error: {0}", ex);
+                //winnerBox.Text = "Error";
+                if (ex is InvalidOperationException)
+                {
+                    try
                     {
-                        MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
+                        OpenConnection(_connection);
                     }
+                    catch (Exception exp)
+                    {
+                        MessageBox.Show(string.Format(Constants.ErrorWithVar, exp), Constants.ErrorText);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
                 }
             }
         }
@@ -483,11 +475,11 @@ namespace LottoManager {
         }
 
         private void supportForumsToolStripMenuItem_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start(VariableConstants.SupportForums);
+            System.Diagnostics.Process.Start(Constants.SupportForums);
         }
 
         private void lottoSiteToolStripMenuItem_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start(VariableConstants.LottoWebPage);
+            System.Diagnostics.Process.Start(Constants.LottoWebPage);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e) {

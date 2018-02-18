@@ -40,12 +40,10 @@ namespace LottoManager
         internal const string ConfirmDatabaseClearboxTitle = "ARE YOU 100% SURE?";
 
         internal const string ConnectToDatabaseError = "Please connect to the database.";
-    }
 
-    internal static class VariableConstants
-    {
         // This will never change unless ANet updates their API URL
         internal const string BaseUrl = "https://api.guildwars2.com/v2/guild/";
+        
         internal const string SupportForums = "https://snoring.ninja/forums";
         internal const string LottoWebPage = "https://endgame.wtf/lotto";
     }
