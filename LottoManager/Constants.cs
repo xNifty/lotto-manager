@@ -1,4 +1,10 @@
-﻿using System.ComponentModel.Design.Serialization;
+﻿/*
+ * Constants.cs
+ * @author xNifty
+ * 
+ * Contains all of the string constants used throughout the program
+ * 
+ */
 
 namespace LottoManager
 {

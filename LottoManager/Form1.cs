@@ -10,13 +10,16 @@ using MySql.Data.MySqlClient;
 using LottoManager.Properties;
 using Newtonsoft.Json;
 
+// @TODO : document code
+// @TODO : possible refactor
+
 namespace LottoManager {
 
     public partial class Form1 : Form {
         private MySqlConnection _connection;
         private bool _isConnected;
         private bool _generatedList;
-        private readonly Dictionary<string, string> _dict = new Dictionary<string, string>();
+        private Dictionary<string, string> _dict = new Dictionary<string, string>();
         private readonly List<string> _randomList = new List<string>();
         private List<string> _winnerList = new List<string>();
         private readonly List<string> _guildRoster = new List<string>();
@@ -265,29 +268,19 @@ namespace LottoManager {
         }
 
         private void listResetButton_Click(object sender, EventArgs e) {
-            var confirmReset = MessageBox.Show(Constants.ResetListClearWarning, Constants.ConfirmReset, MessageBoxButtons.YesNo);
+            var confirmReset = MessageBox.Show(
+                Constants.ResetListClearWarning, Constants.ConfirmReset, MessageBoxButtons.YesNo);
 
             if (confirmReset != DialogResult.Yes) return;
             _randomList.Clear();
             _dict.Clear();
             rollBox.Clear();
+            
             if (_randomList.Any()) return;
+            
             try
             {
-                var command = new MySqlCommand();
-                MySqlDataReader reader;
-                command.CommandText = "call List_Lotto_Users()";
-                command.Connection = _connection;
-
-                //reader = command.ExecuteReader();
-
-                using (reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        _dict.Add(reader[0].ToString(), reader[1].ToString());
-                    }
-                }
+                _dict = DatabaseFunctions.ListLottoUsers(_connection);
 
                 // Take the number of tickets, and add that many entries to the List
                 foreach (var kvpList in _dict)
@@ -302,14 +295,10 @@ namespace LottoManager {
 
                 _randomList.Shuffle();
 
-                // Printing out the List
-                //randomList.ForEach(Console.WriteLine);
                 MessageBox.Show(Constants.ListGenerationComplete);
             }
             catch (Exception ex)
             {
-                //Console.WriteLine("Error: {0}", ex);
-                //winnerBox.Text = "Error";
                 if (ex is InvalidOperationException)
                 {
                     try
@@ -329,45 +318,21 @@ namespace LottoManager {
         }
 
         private void submitWinnerButton_Click(object sender, EventArgs e) {
+            // Let's make sure the history list has objects....otherwise, throw an error and do nothing
+            if (!_winnerList.Any()) {
+                MessageBox.Show(Constants.WinnerListError, Constants.ErrorText);
+                return;
+            }
+            
             try {
+                
                 var winner = winnerBox.Text;
                 int.TryParse(rollBox.Text, out var rolls);
                 var items = wonItemsBox.Text;
                 var date = DateTime.Now;
-                
-                // Uncomment this for testing
-                /*
-                 Console.WriteLine("Count: {0}", _winnerList.Count);
-                 foreach (var t in _winnerList)
-                     Console.WriteLine("History list: {0}", t);
-                */
-
-                // Init the MySqlCommand class
-                var command = new MySqlCommand();
-
-                // Let's make sure the history list has objects....otherwise, throw an error and do nothing
-                if (!_winnerList.Any()) {
-                    MessageBox.Show(Constants.WinnerListError, Constants.ErrorText);
-                    return;
-                }
-
                 var rollHistory = string.Join(Environment.NewLine, _winnerList);
 
-                /*
-                 * Build and execute the stored procedure
-                 * I really hate how this is done, but oh well...it works, and yeah.
-                 * 
-                 * */
-                command.CommandText = "call Add_Lotto_Winner(@p1, @p2, @p3, @p4, @p5)";
-                command.Parameters.AddWithValue("@p1", winner);
-                command.Parameters.AddWithValue("@p2", rolls);
-                command.Parameters.AddWithValue("@p3", items);
-                command.Parameters.AddWithValue("@p4", date);
-                command.Parameters.AddWithValue("@p5", rollHistory);
-                
-                command.Connection = _connection;
-
-                command.ExecuteNonQuery();
+                DatabaseFunctions.AddLottoWinner(_connection, winner, rolls, items, date, rollHistory);
 
                 winnerBox.Clear();
                 wonItemsBox.Clear();
@@ -376,10 +341,11 @@ namespace LottoManager {
                 winnerBox.Enabled = false;
                 wonItemsBox.Enabled = false;
                
-                MessageBox.Show(string.Format(Constants.InsertedWinnerText, winner, rolls, items), Constants.SuccessText);
+                MessageBox.Show(string.Format(
+                    Constants.InsertedWinnerText, winner, rolls, items), Constants.SuccessText);
+                
                 _winnerList.Clear();
             } catch (Exception ex) {
-                //Console.WriteLine("Error: {0}", ex);
                 MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
             }
         }
@@ -422,31 +388,16 @@ namespace LottoManager {
                     ticketsToUpdate = ticketsCounter;
                 }
 
-                // Init the MySqlCommand class
-                var command = new MySqlCommand
-                {
-                    CommandText = "call Add_Lotto_user(@p1, @p2)"
-                };
-
-                /*
-                 * Build and execute the stored procedure
-                 * 
-                 * */
-                command.Parameters.AddWithValue("@p1", userName);
-                command.Parameters.AddWithValue("@p2", ticketsToUpdate);
-                command.Connection = _connection;
-
-                command.ExecuteNonQuery();
+                DatabaseFunctions.AddLottoUser(_connection, userName, ticketsToUpdate);
 
                 userEntryText.Clear();
                 ticketsCount.Clear();
 
                 addUserButton.Enabled = false;
 
-                MessageBox.Show(string.Format(Constants.AddedUpdatedUserSuccess, userName, ticketsToUpdate), 
-                    Constants.SuccessText);
+                MessageBox.Show(string.Format(
+                        Constants.AddedUpdatedUserSuccess, userName, ticketsToUpdate), Constants.SuccessText);
             } catch (Exception ex) {
-                //Console.WriteLine("Error: {0}", ex);
                 MessageBox.Show(string.Format(Constants.ErrorWithVar, ex), Constants.ErrorText);
             }
         }
@@ -487,8 +438,6 @@ namespace LottoManager {
         }
 
         private void Link_Clicked(object sender, LinkClickedEventArgs e) {
-//            Console.WriteLine("Clicked!");
-//            Console.WriteLine(e.LinkText);
             System.Diagnostics.Process.Start(e.LinkText);
         }
 
@@ -500,22 +449,18 @@ namespace LottoManager {
                     Constants.ConfirmDatabaseClearboxTitle, MessageBoxButtons.YesNo);
 
                 if (confirmReset != DialogResult.Yes) return;
+                
                 /*
-                    * Confirm again
-                    * Build and execute the stored procedure
-                    * 
-                    */
+                * Confirm again
+                * Build and execute the stored procedure
+                * 
+                */
                 var confirmReset2 = MessageBox.Show(Constants.ConfirmDatabaseClear,
                     Constants.ConfirmDatabaseClearboxTitle, MessageBoxButtons.YesNo);
 
                 if (confirmReset2 != DialogResult.Yes) return;
-                var command = new MySqlCommand
-                {
-                    CommandText = "call Clear_Lotto_Users()",
-                    Connection = _connection
-                };
-
-                command.ExecuteNonQuery();
+                
+                DatabaseFunctions.ClearLottoUsers(_connection);
             } else {
                 // This should never happen, since the button is disabled at launch, but to be safe
                 MessageBox.Show(Constants.ConnectToDatabaseError, Constants.ErrorText);

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace FDL.Library.Numeric {
+namespace LottoManager {
     public static class RandomNumber {
         private static readonly RNGCryptoServiceProvider Generator = new RNGCryptoServiceProvider();
 
